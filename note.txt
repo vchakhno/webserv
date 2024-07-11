@@ -1,0 +1,35 @@
+Faire un chat bidirectionnel avec un seul client.
+Etendre a plusieurs clients.
+
+Setup:
+- makefile
+- .build
+
+Checker getaddrinfo, setsockopt, getsockname
+
+Faire des classes:
+- MasterSocker
+	- register
+- EventPool
+	attributs:
+	- fd
+	- buffer
+	- current (le i actuel)
+	- count
+	methodes:
+	- get_event
+
+class Event {
+	void execute();
+};
+
+class ClientEvent : public Event {
+	void execute();
+}
+
+void ClientEvent::execute()
+{
+
+}
+
+functions closure
