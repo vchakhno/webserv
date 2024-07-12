@@ -1,4 +1,5 @@
 #include "EventPool.hpp"
+#include "Event.hpp"
 #include <string.h>
 #include <iostream>
 #include <cerrno>
@@ -8,7 +9,7 @@ EventPool::EventPool() throw (std::runtime_error) : current(), count()
 {
 	fd = epoll_create(1);
 	if (fd == -1)
-		throw std::runtime_error(strerror(errno));
+		throw std::runtime_error(std::string(__FILE__) + ": " + strerror(errno));
 }
 
 EventPool::~EventPool()
@@ -16,21 +17,24 @@ EventPool::~EventPool()
 	close(fd);
 }
 
-void	EventPool::observe(int new_fd, int event_mask) throw(std::runtime_error)
+void	EventPool::observe(int new_fd, int event_mask, Event &event) throw(std::runtime_error)
 {
-	t_event	event;
+	struct epoll_event	new_event;
 
-	event.data.fd = new_fd;
-	event.events = event_mask;
-	if (epoll_ctl(fd, EPOLL_CTL_ADD, new_fd, &event) == -1)
-		throw std::runtime_error(strerror(errno));
+	new_event.data.fd = new_fd;
+	new_event.data.ptr = (void *) &event;
+	new_event.events = event_mask;
+	if (epoll_ctl(fd, EPOLL_CTL_ADD, new_fd, &new_event) == -1)
+		throw std::runtime_error(std::string(__FILE__) + ": " + strerror(errno));
 }
 
-EventPool::t_event *EventPool::get_event()
+Event&	EventPool::get_event(int &event_flags)
 {
-	if (current < count)
-		return &buffer[current++];
-	count = epoll_wait(fd, buffer, MAX_EVENTS, -1);
-	current = 0;
-	return &buffer[current];
+	if (current == count)
+	{
+		count = epoll_wait(fd, buffer, MAX_EVENTS, -1);
+		current = 0;
+	}
+	event_flags = buffer[current].events;
+	return *(Event *)buffer[current++].data.ptr;
 }

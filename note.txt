@@ -7,29 +7,11 @@ Setup:
 
 Checker getaddrinfo, setsockopt, getsockname
 
-Faire des classes:
-- MasterSocker
-	- register
-- EventPool
-	attributs:
-	- fd
-	- buffer
-	- current (le i actuel)
-	- count
-	methodes:
-	- get_event
 
-class Event {
-	void execute();
-};
+tableau de client, voir si taille fixe ou variable
 
-class ClientEvent : public Event {
-	void execute();
-}
-
-void ClientEvent::execute()
-{
-
-}
-
-functions closure
+Plusieurs moyens de gérer les clients:
+- tableau d'ids available + tableau de client, tous les deux fixes // méthode la plus elegante pour l'instant
+- tableau à trous + curseur qui wrap
+- tableau avec swap_remove et EPOLL_CTL_MOD pour reajuster les pointeurs
+- tableau/vecteur/liste dans la heap // méthode classique
