@@ -1,22 +1,23 @@
-#include "ClientSocket.hpp"
-#include <sys/socket.h>
-#include <sys/epoll.h>
-#include <string.h>
+#include "ClientHandler.hpp"
 #include <iostream>
-#include <netdb.h>
 #include <unistd.h>
 
-ClientSocket::ClientSocket(int fd) : fd(fd) {}
+ClientHandler::ClientHandler(int fd) : fd(fd) {}
 
-ClientSocket::~ClientSocket()
+ClientHandler::~ClientHandler()
 {
 	close(fd);
 }
 
-void	ClientSocket::execute(int event_flags, EventPool &pool, ClientManager &clients)
-{
+void	ClientHandler::execute(
+	int event_flags,
+	EventPool &pool,
+	HandlerManager<CGIHandler> &cgis,
+	HandlerManager<FileHandler> &files
+) {
 	(void) pool;
-	(void) clients;
+	(void) files;
+	(void) cgis;
 	if (event_flags & EPOLLIN)
 		std::cout << "EPOLLIN ";
 	if (event_flags & EPOLLOUT)
@@ -24,8 +25,15 @@ void	ClientSocket::execute(int event_flags, EventPool &pool, ClientManager &clie
 	if (event_flags & EPOLLERR)
 		std::cout << "EPOLLERR ";
 	if (event_flags & EPOLLHUP)
+	{
 		std::cout << "EPOLLHUP ";
+		char c;
+		read(0, &c, 1);
+	}
 	if (event_flags & EPOLLRDHUP)
+	{
 		std::cout << "EPOLLRDHUP ";
+		write(fd, "a", 1);
+	}
 	std::cout << std::endl;
 }

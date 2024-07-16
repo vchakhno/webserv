@@ -1,11 +1,16 @@
 Faire un chat bidirectionnel avec un seul client.
 Etendre a plusieurs clients.
 
-Setup:
-- makefile
-- .build
 
 Checker getaddrinfo, setsockopt, getsockname
+
+Gestion connexion client:
+- ignorer RDHUP: la lecture est peut-être fermée mais on doit lire les données restantes
+- en cas d'EPOLLHUP: close la lecture et l'ecriture
+- en cas de read de 0: close la lecture
+
+Client	->	CGI
+		<-
 
 
 tableau de client, voir si taille fixe ou variable
@@ -15,3 +20,6 @@ Plusieurs moyens de gérer les clients:
 - tableau à trous + curseur qui wrap
 - tableau avec swap_remove et EPOLL_CTL_MOD pour reajuster les pointeurs
 - tableau/vecteur/liste dans la heap // méthode classique
+
+
+Voir si on deplace les CGIs et files dans le client concerné

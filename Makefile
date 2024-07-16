@@ -1,11 +1,12 @@
 NAME			:= ./webserv
 
 SOURCES			:= \
-					ClientManager.cpp \
-					ClientSocket.cpp \
+					server.cpp \
 					EventPool.cpp \
-					MasterSocket.cpp \
-					server.cpp
+					MasterHandler.cpp \
+					ClientHandler.cpp \
+					CGIHandler.cpp \
+					FileHandler.cpp
 OBJECTS			:= $(SOURCES:.cpp=.o)
 SOURCES			:= $(addprefix sources/,$(SOURCES))
 OBJECTS			:= $(addprefix .build/,$(OBJECTS))

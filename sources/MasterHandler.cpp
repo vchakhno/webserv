@@ -1,4 +1,5 @@
-#include "MasterSocket.hpp"
+#include "MasterHandler.hpp"
+#include "HandlerType.hpp"
 #include <sys/socket.h>
 #include <string.h>
 #include <iostream>
@@ -7,7 +8,7 @@
 #include <cerrno>
 #include <string>
 
-MasterSocket::MasterSocket() throw (std::runtime_error)
+MasterHandler::MasterHandler() throw (std::runtime_error)
 {
 	struct protoent		*protocol_entry;
 	int					protocol;
@@ -31,32 +32,42 @@ MasterSocket::MasterSocket() throw (std::runtime_error)
 	}
 }
 
-MasterSocket::~MasterSocket()
+MasterHandler::~MasterHandler()
 {
 	close(fd);
 }
 
-void	MasterSocket::listen(EventPool &pool) throw (std::runtime_error)
+void	MasterHandler::listen(EventPool &pool) throw (std::runtime_error)
 {
-	pool.observe(fd, EPOLLIN, *this);
+	EventPool::Event master_event = {
+		.flags = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLRDHUP,
+		.handler_type = MASTER_HANDLER,
+		.handler = this,
+	};
+	pool.observe(fd, master_event);
 	if (::listen(fd, BACKLOG_SIZE) == -1)
 		throw std::runtime_error(std::string(__FILE__) + ": " + strerror(errno));
 }
 
-void	MasterSocket::execute(int event_flags, EventPool &pool, ClientManager &clients)
+void	MasterHandler::execute(int event_flags, EventPool &pool, HandlerManager<ClientHandler> &clients)
 {
-	struct sockaddr	client_address;
-	socklen_t		addr_len;
-	int				client_fd;
-	ClientSocket	*client;
+	int					client_fd;
+	ClientHandler		*client;
 
 	(void) event_flags;
 	std::cout << "Incoming connection" << std::endl;
-	if ((client_fd = accept(fd, &client_address, &addr_len)) == -1)
+	if ((client_fd = accept(fd, NULL, NULL)) == -1)
 	{
 		std::cerr << "Connection error" << std::endl;
 		return;
 	}
-	client = clients.add_client(client_fd, client_address);
-	pool.observe(client_fd, EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLRDHUP, *(Event *)client);
+	client = new ClientHandler(client_fd);
+	clients.add_handler(client);
+
+	EventPool::Event client_event = {
+		.flags = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLRDHUP,
+		.handler_type = CLIENT_HANDLER,
+		.handler = client,
+	};
+	pool.observe(client_fd, client_event);
 }
