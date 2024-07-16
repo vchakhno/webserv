@@ -4,6 +4,7 @@
 #include <iostream>
 #include <netdb.h>
 #include <unistd.h>
+#include <cerrno>
 #include <string>
 
 MasterSocket::MasterSocket() throw (std::runtime_error)

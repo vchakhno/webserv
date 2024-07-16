@@ -18,7 +18,6 @@ try {
 		event.execute(event_flags, pool, clients);
 	}
 }
-
 catch (std::runtime_error e) {
 	std::cerr << argv[0] << ": " << e.what() << std::endl;
 	return 1;

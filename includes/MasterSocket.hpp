@@ -7,7 +7,6 @@
 
 #define BACKLOG_SIZE 10
 
-
 class MasterSocket : Event {
 public:
 	MasterSocket() throw (std::runtime_error);
