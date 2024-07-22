@@ -12,12 +12,12 @@ ClientHandler::~ClientHandler()
 void	ClientHandler::execute(
 	int event_flags,
 	EventPool &pool,
-	HandlerManager<CGIHandler> &cgis,
+	HandlerManager<ScriptHandler> &scripts,
 	HandlerManager<FileHandler> &files
 ) {
 	(void) pool;
 	(void) files;
-	(void) cgis;
+	(void) scripts;
 	if (event_flags & EPOLLIN)
 		std::cout << "EPOLLIN ";
 	if (event_flags & EPOLLOUT)

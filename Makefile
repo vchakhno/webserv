@@ -5,7 +5,7 @@ SOURCES			:= \
 					EventPool.cpp \
 					MasterHandler.cpp \
 					ClientHandler.cpp \
-					CGIHandler.cpp \
+					ScriptHandler.cpp \
 					FileHandler.cpp
 OBJECTS			:= $(SOURCES:.cpp=.o)
 SOURCES			:= $(addprefix sources/,$(SOURCES))
