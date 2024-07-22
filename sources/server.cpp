@@ -11,7 +11,7 @@ try {
 	MasterHandler					master;
 	EventPool 						pool;
 	HandlerManager<ClientHandler>	clients;
-	HandlerManager<ScriptHandler>		scripts;
+	HandlerManager<ScriptHandler>	scripts;
 	HandlerManager<FileHandler>		files;
 	EventPool::Event				event;
 
@@ -26,7 +26,7 @@ try {
 			((MasterHandler *)event.handler)->execute(event.flags, pool, clients);
 			break;
 		case CLIENT_HANDLER:
-			((ClientHandler *)event.handler)->execute(event.flags, pool, scripts, files);
+			((ClientHandler *)event.handler)->execute(event.flags, pool, scripts, files, clients);
 			break;
 		case SCRIPT_HANDLER:
 			((ScriptHandler *)event.handler)->execute(event.flags);

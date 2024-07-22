@@ -1,6 +1,10 @@
 #include "ClientHandler.hpp"
 #include <iostream>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#define RECV_SIZE 3000
 
 ClientHandler::ClientHandler(int fd) : fd(fd) {}
 
@@ -9,31 +13,110 @@ ClientHandler::~ClientHandler()
 	close(fd);
 }
 
+enum HttpMethod : uint8_t {
+	METHOD_GET = 0,
+	METHOD_POST = 1,
+	METHOD_HEAD = 2,
+	METHOD_UPDATE = 3,
+	METHOD_PUT = 4,
+	METHOD_DELETE = 5,
+};
+
+struct HttpRequest
+{
+	HttpMethod method;
+
+	std::string	header;
+	std::string	body;
+};
+
+bool	match_string(
+	const std::string &string,
+	const std::string &substring,
+	std::size_t &pos
+) {
+	for (std::size_t i = 0; i < substring.size(); i++)
+		if (string[i + pos] != substring[i])
+			return false;
+	pos += substring.size();
+	return true;
+}
+
+// GET	/etc/test HTTP1.1
+
+bool	parse_http_method(
+	const std::string &raw_request,
+	std::size_t	&pos,
+	HttpMethod &method
+) {
+	std::string	methods[] = {
+		"GET", "POST", "HEAD", "UPDATE", "PUT", "DELETE"
+	};
+
+	for (int i = 0; i < (int) (sizeof(methods) / sizeof(*methods)); i++)
+	{
+		if (match_string(raw_request, methods[i], pos))
+		{
+			method = (HttpMethod) i;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool	parse_abs_path(const std::string &raw_request)
+{
+	(void) raw_request;
+	return true;
+}
+
+HttpRequest	parse_http_request(std::string raw_request)
+{
+	HttpRequest	parsed_request;
+	std::string	line;
+	std::size_t	pos;
+
+	// Parse request line hello
+	// Method SP Request-URI SP HTTP-Version CRLF
+	pos = 0;
+	if (
+		!parse_http_method(raw_request, pos, parsed_request.method)
+		|| !match_string(raw_request, " ", pos)
+		|| !parse_abs_path(raw_request)
+		|| !match_string(raw_request, " ", pos)
+	)
+		throw std::runtime_error("Bad request");
+	std::cout << "Request parsing succeeded" << std::endl;
+	return parsed_request;
+}
+
 void	ClientHandler::execute(
 	int event_flags,
 	EventPool &pool,
 	HandlerManager<ScriptHandler> &scripts,
-	HandlerManager<FileHandler> &files
+	HandlerManager<FileHandler> &files,
+	HandlerManager<ClientHandler> &clients_manager
 ) {
 	(void) pool;
 	(void) files;
 	(void) scripts;
+
 	if (event_flags & EPOLLIN)
-		std::cout << "EPOLLIN ";
-	if (event_flags & EPOLLOUT)
-		std::cout << "EPOLLOUT ";
-	if (event_flags & EPOLLERR)
-		std::cout << "EPOLLERR ";
-	if (event_flags & EPOLLHUP)
 	{
-		std::cout << "EPOLLHUP ";
-		char c;
-		read(0, &c, 1);
+		char	buf[RECV_SIZE];
+		int		ret;
+
+		ret = recv(fd, buf, RECV_SIZE, 0);
+		if (ret == -1)
+			std::cerr << "Error while reading from client socket" << std::endl;
+		else if (ret == 0)
+		{
+			// std::cout << http_request << std::endl;
+			parse_http_request(http_request);
+			clients_manager.remove_handler(fd);
+			return;
+		}
+		else
+			http_request.append(buf, ret);
 	}
-	if (event_flags & EPOLLRDHUP)
-	{
-		std::cout << "EPOLLRDHUP ";
-		write(fd, "a", 1);
-	}
-	std::cout << std::endl;
 }

@@ -1,6 +1,4 @@
-Faire un chat bidirectionnel avec un seul client.
-Etendre a plusieurs clients.
-
+Renvoyer une ressource au client
 
 Checker getaddrinfo, setsockopt, getsockname
 
@@ -8,9 +6,6 @@ Gestion connexion client:
 - ignorer RDHUP: la lecture est peut-être fermée mais on doit lire les données restantes
 - en cas d'EPOLLHUP: close la lecture et l'ecriture
 - en cas de read de 0: close la lecture
-
-Client	->	CGI
-		<-
 
 
 tableau de client, voir si taille fixe ou variable
@@ -22,4 +17,4 @@ Plusieurs moyens de gérer les clients:
 - tableau/vecteur/liste dans la heap // méthode classique
 
 
-Voir si on deplace les CGIs et files dans le client concerné
+Voir si on deplace les scripts et files dans le client concerné

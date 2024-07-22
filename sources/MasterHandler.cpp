@@ -62,7 +62,7 @@ void	MasterHandler::execute(int event_flags, EventPool &pool, HandlerManager<Cli
 		return;
 	}
 	client = new ClientHandler(client_fd);
-	clients.add_handler(client);
+	clients.add_handler(client_fd, client);
 
 	EventPool::Event client_event = {
 		.flags = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLRDHUP,

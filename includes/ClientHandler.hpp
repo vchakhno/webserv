@@ -15,8 +15,11 @@ public:
 		int event_flags,
 		EventPool &pool,
 		HandlerManager<ScriptHandler> &scripts,
-		HandlerManager<FileHandler> &files
+		HandlerManager<FileHandler> &files,
+		HandlerManager<ClientHandler> &clients_manager
 	);
 private:
 	int	fd;
+	std::string	http_request;
+
 };
