@@ -24,7 +24,7 @@ MasterHandler::MasterHandler() throw (std::runtime_error)
 	// Binds to all available interfaces
 	master_address.sin_addr.s_addr = INADDR_ANY;
 	master_address.sin_family = AF_INET;
-	master_address.sin_port = htons(3004);
+	master_address.sin_port = htons(PORT);
 	if (bind(fd, (struct sockaddr *)&master_address, sizeof(master_address)) == -1)
 	{
 		close(fd);

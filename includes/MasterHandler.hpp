@@ -5,6 +5,10 @@
 #include "ClientHandler.hpp"
 #include "HandlerManager.tpp"
 
+#ifndef PORT
+	#define PORT 3000
+#endif
+
 #define BACKLOG_SIZE 10
 
 class MasterHandler {
