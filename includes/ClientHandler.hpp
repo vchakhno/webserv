@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include "HandlerManager.tpp"
 #include "FileHandler.hpp"
-#include "CGIHandler.hpp"
+#include "ScriptHandler.hpp"
 #include "EventPool.hpp"
 
 class ClientHandler {
@@ -14,9 +14,12 @@ public:
 	void	execute(
 		int event_flags,
 		EventPool &pool,
-		HandlerManager<CGIHandler> &cgis,
-		HandlerManager<FileHandler> &files
+		HandlerManager<ScriptHandler> &scripts,
+		HandlerManager<FileHandler> &files,
+		HandlerManager<ClientHandler> &clients_manager
 	);
 private:
 	int	fd;
+	std::string	http_request;
+
 };

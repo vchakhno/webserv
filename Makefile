@@ -1,11 +1,12 @@
 NAME			:= ./webserv
+PORT			:= 3000
 
 SOURCES			:= \
 					server.cpp \
 					EventPool.cpp \
 					MasterHandler.cpp \
 					ClientHandler.cpp \
-					CGIHandler.cpp \
+					ScriptHandler.cpp \
 					FileHandler.cpp
 OBJECTS			:= $(SOURCES:.cpp=.o)
 SOURCES			:= $(addprefix sources/,$(SOURCES))
@@ -14,6 +15,7 @@ DEPENDENCIES	:= $(OBJECTS:.o=.d)
 
 CXX				:= c++
 CXXFLAGS		:= -Wall -Wextra -Werror -std=c++98 -Iincludes -MMD -MP
+DEFINES			:= -D PORT=$(PORT)
 
 LDFLAGS			:=
 
@@ -26,10 +28,7 @@ $(NAME): $(OBJECTS)
 
 .build/%.o: sources/%.cpp
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-print:
-	@echo $(DEPENDENCIES)
+	$(CXX) $(CXXFLAGS) $(DEFINES) -c $< -o $@
 
 clean:
 	rm -rf .build

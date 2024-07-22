@@ -24,7 +24,7 @@ MasterHandler::MasterHandler() throw (std::runtime_error)
 	// Binds to all available interfaces
 	master_address.sin_addr.s_addr = INADDR_ANY;
 	master_address.sin_family = AF_INET;
-	master_address.sin_port = htons(3004);
+	master_address.sin_port = htons(PORT);
 	if (bind(fd, (struct sockaddr *)&master_address, sizeof(master_address)) == -1)
 	{
 		close(fd);
@@ -62,7 +62,7 @@ void	MasterHandler::execute(int event_flags, EventPool &pool, HandlerManager<Cli
 		return;
 	}
 	client = new ClientHandler(client_fd);
-	clients.add_handler(client);
+	clients.add_handler(client_fd, client);
 
 	EventPool::Event client_event = {
 		.flags = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLRDHUP,

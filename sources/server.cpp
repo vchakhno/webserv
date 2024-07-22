@@ -11,7 +11,7 @@ try {
 	MasterHandler					master;
 	EventPool 						pool;
 	HandlerManager<ClientHandler>	clients;
-	HandlerManager<CGIHandler>		cgis;
+	HandlerManager<ScriptHandler>	scripts;
 	HandlerManager<FileHandler>		files;
 	EventPool::Event				event;
 
@@ -26,10 +26,10 @@ try {
 			((MasterHandler *)event.handler)->execute(event.flags, pool, clients);
 			break;
 		case CLIENT_HANDLER:
-			((ClientHandler *)event.handler)->execute(event.flags, pool, cgis, files);
+			((ClientHandler *)event.handler)->execute(event.flags, pool, scripts, files, clients);
 			break;
-		case CGI_HANDLER:
-			((CGIHandler *)event.handler)->execute(event.flags);
+		case SCRIPT_HANDLER:
+			((ScriptHandler *)event.handler)->execute(event.flags);
 			break;
 		case FILE_HANDLER:
 			((FileHandler *)event.handler)->execute(event.flags);
