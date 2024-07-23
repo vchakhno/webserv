@@ -1,5 +1,5 @@
 NAME			:= ./webserv
-PORT			:= 3000
+PORT			:= 3002
 
 SOURCES			:= \
 					server.cpp \
@@ -7,7 +7,8 @@ SOURCES			:= \
 					MasterHandler.cpp \
 					ClientHandler.cpp \
 					ScriptHandler.cpp \
-					FileHandler.cpp
+					HttpRequest.cpp \
+					File.cpp
 OBJECTS			:= $(SOURCES:.cpp=.o)
 SOURCES			:= $(addprefix sources/,$(SOURCES))
 OBJECTS			:= $(addprefix .build/,$(OBJECTS))

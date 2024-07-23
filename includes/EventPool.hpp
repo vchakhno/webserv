@@ -16,7 +16,7 @@ public:
 		void	*handler;
 	};
 
-	void	observe(int event_fd, Event event) throw(std::runtime_error);
+	void	observe(int event_fd, Event event, std::string event_name) throw(std::runtime_error);
 	Event	get_event();
 private:
 	int						fd;

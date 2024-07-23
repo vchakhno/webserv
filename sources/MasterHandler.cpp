@@ -40,14 +40,15 @@ MasterHandler::~MasterHandler()
 void	MasterHandler::listen(EventPool &pool) throw (std::runtime_error)
 {
 	EventPool::Event master_event = {
-		.flags = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLRDHUP,
+		.flags = EPOLLIN,
 		.handler_type = MASTER_HANDLER,
 		.handler = this,
 	};
-	pool.observe(fd, master_event);
+	pool.observe(fd, master_event, "master socket");
 	if (::listen(fd, BACKLOG_SIZE) == -1)
 		throw std::runtime_error(std::string(__FILE__) + ": " + strerror(errno));
 }
+
 
 void	MasterHandler::execute(int event_flags, EventPool &pool, HandlerManager<ClientHandler> &clients)
 {
@@ -61,6 +62,7 @@ void	MasterHandler::execute(int event_flags, EventPool &pool, HandlerManager<Cli
 		std::cerr << "Connection error" << std::endl;
 		return;
 	}
+
 	client = new ClientHandler(client_fd);
 	clients.add_handler(client_fd, client);
 
@@ -69,5 +71,6 @@ void	MasterHandler::execute(int event_flags, EventPool &pool, HandlerManager<Cli
 		.handler_type = CLIENT_HANDLER,
 		.handler = client,
 	};
-	pool.observe(client_fd, client_event);
+
+	pool.observe(client_fd, client_event, "client socket");
 }

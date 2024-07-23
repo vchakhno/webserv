@@ -6,9 +6,8 @@
 
 EventPool::EventPool() throw (std::runtime_error) : current(), count()
 {
-	fd = epoll_create(1);
-	if (fd == -1)
-		throw std::runtime_error(std::string(__FILE__) + ": " + strerror(errno));
+	if ((this->fd = epoll_create(1)) == -1)
+		throw std::runtime_error(std::string("Error while creating event pool: ") + strerror(errno));
 }
 
 EventPool::~EventPool()
@@ -25,13 +24,13 @@ static struct epoll_event	serialize_handler(EventPool::Event event)
 	return serialized;
 }
 
-void	EventPool::observe(int event_fd, Event event) throw(std::runtime_error)
+void	EventPool::observe(int event_fd, Event event, std::string event_name) throw(std::runtime_error)
 {
 	struct epoll_event	serialized;
 
 	serialized = serialize_handler(event);
-	if (epoll_ctl(fd, EPOLL_CTL_ADD, event_fd, &serialized) == -1)
-		throw std::runtime_error(std::string(__FILE__) + ": " + strerror(errno));
+	if (epoll_ctl(this->fd, EPOLL_CTL_ADD, event_fd, &serialized) == -1)
+		throw std::runtime_error(std::string("Error while registering ") + event_name + ": " + ": " + strerror(errno));
 }
 
 static EventPool::Event		deserialize_event(struct epoll_event serialized)

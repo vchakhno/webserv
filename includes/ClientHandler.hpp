@@ -2,9 +2,12 @@
 
 #include <stdexcept>
 #include "HandlerManager.tpp"
-#include "FileHandler.hpp"
 #include "ScriptHandler.hpp"
 #include "EventPool.hpp"
+#include <vector>
+
+#define RECV_SIZE 8192
+#define READ_SIZE 8192
 
 class ClientHandler {
 public:
@@ -15,11 +18,11 @@ public:
 		int event_flags,
 		EventPool &pool,
 		HandlerManager<ScriptHandler> &scripts,
-		HandlerManager<FileHandler> &files,
 		HandlerManager<ClientHandler> &clients_manager
 	);
 private:
-	int	fd;
-	std::string	http_request;
-
+	int						fd;
+	std::string				request_buffer;
+	std::vector<uint8_t>	response_buffer;
+	size_t					response_pos;
 };

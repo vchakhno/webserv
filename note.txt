@@ -18,3 +18,10 @@ Plusieurs moyens de gérer les clients:
 
 
 Voir si on deplace les scripts et files dans le client concerné
+
+voir:
+- comment epoll un fichier
+- syntax config file
+
+todo:
+- create File class

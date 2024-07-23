@@ -12,11 +12,11 @@ try {
 	EventPool 						pool;
 	HandlerManager<ClientHandler>	clients;
 	HandlerManager<ScriptHandler>	scripts;
-	HandlerManager<FileHandler>		files;
 	EventPool::Event				event;
 
 	signal(SIGPIPE, SIG_IGN);
 	master.listen(pool);
+	std::cout << "Server listening on port " << PORT << std::endl;
 	while (true)
 	{
 		event = pool.get_event();
@@ -26,13 +26,10 @@ try {
 			((MasterHandler *)event.handler)->execute(event.flags, pool, clients);
 			break;
 		case CLIENT_HANDLER:
-			((ClientHandler *)event.handler)->execute(event.flags, pool, scripts, files, clients);
+			((ClientHandler *)event.handler)->execute(event.flags, pool, scripts, clients);
 			break;
 		case SCRIPT_HANDLER:
 			((ScriptHandler *)event.handler)->execute(event.flags);
-			break;
-		case FILE_HANDLER:
-			((FileHandler *)event.handler)->execute(event.flags);
 			break;
 		}
 	}
