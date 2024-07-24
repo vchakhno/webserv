@@ -1,0 +1,19 @@
+
+tableau de client, voir si taille fixe ou variable
+
+Managing client handlers:
+x map<fd, *handler> + new
+- set<*handler> + new
+- gap array + available/busy (ideal solution)
+- linked list
+- simple buffer with swap remove + events reallocation (maybe EventPool in imediate mode, without buffering?)
+
+Event dispatching:
+x pointer tagging
+- tagged union
+- virtual/function pointers
+
+Request parsing:
+- parse recv by recv
+- parse line by line
+- parse after receiving the whole header (string.find \r\n\r\n)

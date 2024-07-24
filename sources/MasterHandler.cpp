@@ -50,7 +50,7 @@ void	MasterHandler::listen(EventPool &pool) throw (std::runtime_error)
 }
 
 
-void	MasterHandler::execute(int event_flags, EventPool &pool, HandlerManager<ClientHandler> &clients)
+void	MasterHandler::execute(int event_flags, EventPool &pool, HandlerManager<ClientHandler> &clients) 
 {
 	int					client_fd;
 	ClientHandler		*client;
@@ -63,8 +63,12 @@ void	MasterHandler::execute(int event_flags, EventPool &pool, HandlerManager<Cli
 		return;
 	}
 
-	client = new ClientHandler(client_fd);
-	clients.add_handler(client_fd, client);
+	try {
+		client = new ClientHandler(client_fd);
+		clients.add_handler(client);
+	} catch (std::bad_alloc) {
+		throw std::runtime_error("Error allocating memory for the client handler");
+	}
 
 	EventPool::Event client_event = {
 		.flags = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLRDHUP,
@@ -72,5 +76,9 @@ void	MasterHandler::execute(int event_flags, EventPool &pool, HandlerManager<Cli
 		.handler = client,
 	};
 
-	pool.observe(client_fd, client_event, "client socket");
+	try {
+		pool.observe(client_fd, client_event, "client socket");
+	} catch (std::runtime_error) {
+		clients.remove_handler(client); throw;
+	}
 }

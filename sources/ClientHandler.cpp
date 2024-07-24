@@ -47,7 +47,7 @@ void	ClientHandler::execute(
 		ssize_t		recv_size;
 
 		if ((recv_size = recv(fd, recv_buffer, RECV_SIZE, 0)) == -1)
-			throw std::runtime_error("Error while reading from client socket");
+			throw std::runtime_error("Error reading from client socket");
 		if (recv_size > 0)
 		{
 			this->request_buffer.append(recv_buffer, recv_size);
@@ -66,7 +66,7 @@ void	ClientHandler::execute(
 				throw std::runtime_error("Error: file too big");
 			response_buffer.resize(file.size, 0);
 			if ((read(file.fd, &response_buffer[0], file.size)) < file.size)
-				throw std::runtime_error("Error while reading the requested file");
+				throw std::runtime_error("Error reading the requested file");
 		}
 	}
 	if (event_flags & EPOLLOUT)
@@ -80,21 +80,16 @@ void	ClientHandler::execute(
 				&this->response_buffer[this->response_pos],
 				this->response_buffer.size() - response_pos, MSG_DONTWAIT
 			)) == -1)
-			throw std::runtime_error("Error while sending to client socket");
+			throw std::runtime_error("Error sending to client socket");
 		this->response_pos += last_send_size;
 		std::cout << "Response fully sent" << std::endl;
-		clients_manager.remove_handler(this->fd);
+		clients_manager.remove_handler(this);
 	}
 	if (event_flags & EPOLLERR)
-		clients_manager.remove_handler(this->fd);
-}
-catch (std::runtime_error error)
-{
-	std::cerr << error.what() << std::endl;
-	clients_manager.remove_handler(this->fd);
-}
-catch (std::bad_alloc error)
-{
-	std::cerr << "Error while reserving RAM for the response" << std::endl;
-	clients_manager.remove_handler(this->fd);
+		clients_manager.remove_handler(this);
+} catch (std::runtime_error error) {
+	clients_manager.remove_handler(this); throw;
+} catch (std::bad_alloc error) {
+	clients_manager.remove_handler(this);
+	throw std::runtime_error("Error allocating memory for the client handler");
 }
