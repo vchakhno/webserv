@@ -22,7 +22,6 @@ int	main(void)
 	if ((client_fd = socket(AF_INET, SOCK_STREAM, protocol)) == -1)
 		throw std::runtime_error(std::string(__FILE__) + ": " + strerror(errno));
 
-	// Binds to all available interfaces
 	server_address.sin_family = AF_INET;
 	server_address.sin_port = htons(3002);
 	if (inet_pton(AF_INET, "127.0.0.1", &server_address.sin_addr) <= 0) {
