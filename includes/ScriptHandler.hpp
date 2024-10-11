@@ -5,5 +5,5 @@ public:
 	ScriptHandler();
 	~ScriptHandler();
 
-	void	execute(int event_flags);
+	void	handle_event(int event_flags);
 };

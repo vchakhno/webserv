@@ -1,0 +1,36 @@
+
+tableau de client, voir si taille fixe ou variable
+
+Managing client handlers:
+x map<fd, *handler> + new
+- set<*handler> + new
+- gap array + available/busy (ideal solution)
+- linked list
+- simple buffer with swap remove + events reallocation (maybe EventPool in imediate mode, without buffering?)
+
+Event dispatching:
+x pointer tagging
+- tagged union
+- virtual/function pointers
+
+Request parsing:
+- parse recv by recv
+x parse line by line
+- parse after receiving the whole header (string.find \r\n\r\n)
+
+- throw/catch
+	Pour chaque syscall qui peut être interrompu, on throw ServerStop.
+	Le sighandler est en mode pas redémarrer.
+	Le serveur s'arrete instantanement.
+- running = false/while (running)
+	Quand un syscall est interrompu, on le restart.
+	A la fin du traitement de l'event actuel, le serveur s'arrete.
+- pipe
+	On écrit dans le pipe dans le sighandler.
+	SERVER_STOP devient un event comme un autre.
+	Le serveur s'arrete après avoir traité tous les evenements précedents.
+
+-> choix final:
+throw/catch car plus reactif et idiomatique (C++)
+pipe: pas assez reactif/idiomatique
+running: variable global

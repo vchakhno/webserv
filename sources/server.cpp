@@ -12,32 +12,31 @@ try {
 	EventPool 						pool;
 	HandlerManager<ClientHandler>	clients;
 	HandlerManager<ScriptHandler>	scripts;
-	HandlerManager<FileHandler>		files;
 	EventPool::Event				event;
 
-	signal(SIGPIPE, SIG_IGN);
+	// signal(SIGPIPE, SIG_IGN);
 	master.listen(pool);
 	while (true)
 	{
 		event = pool.get_event();
-		switch (event.handler_type)
-		{
-		case MASTER_HANDLER:
-			((MasterHandler *)event.handler)->execute(event.flags, pool, clients);
-			break;
-		case CLIENT_HANDLER:
-			((ClientHandler *)event.handler)->execute(event.flags, pool, scripts, files, clients);
-			break;
-		case SCRIPT_HANDLER:
-			((ScriptHandler *)event.handler)->execute(event.flags);
-			break;
-		case FILE_HANDLER:
-			((FileHandler *)event.handler)->execute(event.flags);
-			break;
+		try {
+			switch (event.handler_type)
+			{
+				case MASTER_HANDLER:
+					((MasterHandler *)event.handler)->handle_event(event.flags, pool, clients);
+					break;
+				case CLIENT_HANDLER:
+					((ClientHandler *)event.handler)->handle_event(event.flags, pool, scripts, clients);
+					break;
+				case SCRIPT_HANDLER:
+					((ScriptHandler *)event.handler)->handle_event(event.flags);
+					break;
+			}
+		} catch (std::runtime_error error) {
+			std::cerr << argv[0] << ": " << error.what() << std::endl;
 		}
 	}
-}
-catch (std::runtime_error e) {
+} catch (std::runtime_error e) {
 	std::cerr << argv[0] << ": " << e.what() << std::endl;
 	return 1;
 }

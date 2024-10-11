@@ -1,4 +1,3 @@
-Renvoyer une ressource au client
 
 Checker getaddrinfo, setsockopt, getsockname
 
@@ -17,4 +16,32 @@ Plusieurs moyens de gérer les clients:
 - tableau/vecteur/liste dans la heap // méthode classique
 
 
-Voir si on deplace les scripts et files dans le client concerné
+Voir si on deplace les scripts dans le client concerné
+
+TRIVIA:
+
+- send() bloque sur un buffer plein
+- recv() ne bloque pas quand il n'y a pas le nombre attendus de bytes disponibles
+
+
+dans Client:
+[    xxx    ]
+     ^
+	 pos
+	 ===
+	 size
+
+
+- recv_buffer // pas censé contenir la requete
+- read_position
+- buffer_size
+
+std::string ClientHandler::read_line() throw(std::runtime_error)
+
+
+
+
+
+
+
+

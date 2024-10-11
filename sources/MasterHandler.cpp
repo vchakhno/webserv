@@ -40,16 +40,18 @@ MasterHandler::~MasterHandler()
 void	MasterHandler::listen(EventPool &pool) throw (std::runtime_error)
 {
 	EventPool::Event master_event = {
-		.flags = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLRDHUP,
+		.flags = EPOLLIN,
 		.handler_type = MASTER_HANDLER,
 		.handler = this,
 	};
-	pool.observe(fd, master_event);
+	pool.observe(fd, master_event, "master socket");
 	if (::listen(fd, BACKLOG_SIZE) == -1)
 		throw std::runtime_error(std::string(__FILE__) + ": " + strerror(errno));
+	std::cout << "Server listening on port " << PORT << std::endl;
 }
 
-void	MasterHandler::execute(int event_flags, EventPool &pool, HandlerManager<ClientHandler> &clients)
+
+void	MasterHandler::handle_event(int event_flags, EventPool &pool, HandlerManager<ClientHandler> &clients) throw (std::runtime_error)
 {
 	int					client_fd;
 	ClientHandler		*client;
@@ -61,13 +63,23 @@ void	MasterHandler::execute(int event_flags, EventPool &pool, HandlerManager<Cli
 		std::cerr << "Connection error" << std::endl;
 		return;
 	}
-	client = new ClientHandler(client_fd);
-	clients.add_handler(client_fd, client);
+
+	try {
+		client = new ClientHandler(client_fd);
+		clients.add_handler(client);
+	} catch (std::bad_alloc) {
+		throw std::runtime_error("Error allocating memory for the client handler");
+	}
 
 	EventPool::Event client_event = {
 		.flags = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLRDHUP,
 		.handler_type = CLIENT_HANDLER,
 		.handler = client,
 	};
-	pool.observe(client_fd, client_event);
+
+	try {
+		pool.observe(client_fd, client_event, "client socket");
+	} catch (std::runtime_error) {
+		clients.remove_handler(client); throw;
+	}
 }

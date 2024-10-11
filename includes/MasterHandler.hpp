@@ -18,7 +18,7 @@ public:
 
 	void	listen(EventPool &pool) throw(std::runtime_error);
 
-	void	execute(int event_flags, EventPool &pool, HandlerManager<ClientHandler> &clients);
+	void	handle_event(int event_flags, EventPool &pool, HandlerManager<ClientHandler> &clients) throw (std::runtime_error);
 private:
 	int	fd;
 };

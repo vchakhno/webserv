@@ -1,0 +1,10 @@
+todo:
+- ajouter commentaire au code !!
+- finir le parsing incomplet dans ClientHandler!
+- check end of header (\r\n\r\n) and content-length for requests that don't end explicitely
+- parse la config (port, host, root)
+- integration test
+- cgi basique
+- DELETE, POST for files
+- consider checking event flag for master socket
+- add logger with levels

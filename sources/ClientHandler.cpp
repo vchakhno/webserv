@@ -1,125 +1,131 @@
 #include "ClientHandler.hpp"
+#include "HttpRequest.hpp"
+#include "File.hpp"
 #include <iostream>
 #include <unistd.h>
-#include <sys/types.h>
+#include <stdio.h>
+#include <string.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
-#define RECV_SIZE 3000
-
-ClientHandler::ClientHandler(int fd) : fd(fd) {}
+ClientHandler::ClientHandler(int fd) : fd(fd), response_pos() {}
 
 ClientHandler::~ClientHandler()
 {
 	close(fd);
 }
 
-enum HttpMethod : uint8_t {
-	METHOD_GET = 0,
-	METHOD_POST = 1,
-	METHOD_HEAD = 2,
-	METHOD_UPDATE = 3,
-	METHOD_PUT = 4,
-	METHOD_DELETE = 5,
-};
-
-struct HttpRequest
+void	print_event_flags(int event_flags)
 {
-	HttpMethod method;
-
-	std::string	header;
-	std::string	body;
-};
-
-bool	match_string(
-	const std::string &string,
-	const std::string &substring,
-	std::size_t &pos
-) {
-	for (std::size_t i = 0; i < substring.size(); i++)
-		if (string[i + pos] != substring[i])
-			return false;
-	pos += substring.size();
-	return true;
+	if (event_flags & EPOLLIN)
+		std::cout << "EPOLLIN ";
+	if (event_flags & EPOLLOUT)
+		std::cout << "EPOLLOUT ";
+	if (event_flags & EPOLLERR)
+		std::cout << "EPOLLERR ";
+	if (event_flags & EPOLLHUP)
+		std::cout << "EPOLLHUP ";
+	if (event_flags & EPOLLRDHUP)
+		std::cout << "EPOLLRDHUP ";
+	std::cout << std::endl;
 }
 
-// GET	/etc/test HTTP1.1
-
-bool	parse_http_method(
-	const std::string &raw_request,
-	std::size_t	&pos,
-	HttpMethod &method
-) {
-	std::string	methods[] = {
-		"GET", "POST", "HEAD", "UPDATE", "PUT", "DELETE"
-	};
-
-	for (int i = 0; i < (int) sizeof(methods) / sizeof(*methods); i++)
-	{
-		if (match_string(raw_request, methods[i], pos))
-		{
-			method = (HttpMethod) i;
-			return true;
-		}
-	}
-	return false;
-}
-
-void	parse_http_request(std::string raw_request)
-{
-	HttpRequest	parsed_request;
-	std::string	line;
-	std::size_t	pos;
-
-	// Parse request line hello
-	// Method SP Request-URI SP HTTP-Version CRLF
-	pos = 0;
-	if (
-		!parse_http_method(raw_request, pos, parsed_request.method)
-		|| !match_string(raw_request, " ", pos)
-		|| !parse_http_uri(raw_request, pos, parsed_request.method)
-		|| !match_string(raw_request, " ", pos)
-		|| !parse_http_version(raw_request, pos, parsed_request.method)
-		|| !match_string(raw_request, "\r\n", pos)
-	)
-		
-		
-		
-	// Parse header fields
-	while ((end = raw_request.find("\n", start)) != std::string::npos)
-	{
-		line = raw_request.substr(start, end - start);
-		std::cout << "Line: " << line << std::endl;
-		start = end + 1;
-	}
-}
-
-void	ClientHandler::execute(
+void	ClientHandler::handle_event(
 	int event_flags,
 	EventPool &pool,
 	HandlerManager<ScriptHandler> &scripts,
-	HandlerManager<FileHandler> &files,
 	HandlerManager<ClientHandler> &clients_manager
-) {
+) throw (std::runtime_error)
+try {
 	(void) pool;
-	(void) files;
 	(void) scripts;
 
+	print_event_flags(event_flags);
 	if (event_flags & EPOLLIN)
 	{
-		char	buf[RECV_SIZE];
-		int		ret;
+		char					recv_buffer[RECV_SIZE];
+		ssize_t					recv_size;
+		size_t					previous_size;
+		std::string::size_type	newline_pos;
 
-		ret = recv(fd, buf, RECV_SIZE, 0);
-		if (ret == -1)
-			std::cerr << "Error while reading from client socket" << std::endl;
-		else if (ret == 0)
+		// std::cout << receive_line() << std::endl;
+
+		if ((recv_size = recv(fd, recv_buffer, RECV_SIZE, 0)) == -1)
+			throw std::runtime_error("Error reading from client socket");
+		if (recv_size > 0)
 		{
-			// std::cout << http_request << std::endl;
-			parse_http_request(http_request);
-			clients_manager.remove_handler(fd);
-			return;
+			previous_size = this->request_buffer.size();
+			this->request_buffer.append(recv_buffer, recv_size);
+
+
+			// TODO:
+			// Put all this switch in HttpRequest inside of parse_request_chunk
+			// Move request_buffer to HttpRequest
+
+			switch (parsing_stage) {
+				case PARSING_STAGE_REQUEST_LINE:
+					std::string line;
+
+					if ((newline_pos = this->request_buffer.find('\n', previous_size)) == std::string::npos)
+						request.parse_request_line(line);
+
+				case PARSING_STAGE_HEADER:
+					while ((newline_pos = this->request_buffer.find('\n', previous_size)) != std::string::npos) {
+						std::string line;
+						line = this->request_buffer.substr(previous_size, newline_pos - previous_size);
+						this->request.parse_request_header(line);
+						previous_size = newline_pos;
+					}
+
+				case PARSING_STAGE_BODY:
+					this->request_buffer.substr(previous_size, this->request_buffer.size() - previous_size);
+					// body +=
+					// if (content_length)
+					//  -> done
+			}
+			std::cout << "Received " << recv_size << " bytes" << std::endl;
 		}
-		else
-			http_request.append(buf, ret);
 	}
+	if (event_flags & EPOLLOUT)
+	{
+		if (this->response_pos == this->response_buffer.size())
+			return;
+
+		ssize_t	last_send_size;
+		
+		if ((last_send_size = send(
+				this->fd,
+				&this->response_buffer[this->response_pos],
+				this->response_buffer.size() - response_pos, 0
+			)) == -1)
+			throw std::runtime_error("Error sending to client socket");
+		this->response_pos += last_send_size;
+		if (this->response_pos == this->response_buffer.size())
+		{
+			std::cout << "Response fully sent" << std::endl;
+			clients_manager.remove_handler(this);
+		}
+	}
+	if (event_flags & EPOLLERR)
+		clients_manager.remove_handler(this);
+} catch (std::runtime_error error) {
+	clients_manager.remove_handler(this); throw;
+} catch (std::bad_alloc error) {
+	clients_manager.remove_handler(this);
+	throw std::runtime_error("Error allocating memory for the client handler");
 }
+
+// void ClientHandler::receive() throw(std::runtime_error)
+// {
+// }
+
+// std::string ClientHandler::parse_line(std::string &line)
+// {
+	
+// }
+
+// std::string ClientHandler::receive_line()
+// {
+
+// }

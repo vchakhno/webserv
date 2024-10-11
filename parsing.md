@@ -14,26 +14,33 @@
 
 "122.222.111.22:3343:AJ@RFEE:111:1:1:115:5678"
 
-authority	=	[ userinfo "@" ] host [ ":" port ]
+authority		=	[ userinfo "@" ] host [ ":" port ]
 
-userinfo	=	*( unreserved / pct-encoded / sub-delims / ":" )
+userinfo		=	*( unreserved / pct-encoded / sub-delims / ":" )
 
-host		=	IP-literal / IPv4address / reg-name
+host			=	IP-literal / IPv4address / reg-name
 
-port		=	*DIGIT
+port			=	*DIGIT
 
-reg-name	=	*( unreserved / pct-encoded / sub-delims )
+reg-name		=	*( unreserved / pct-encoded / sub-delims )
 
-unreserved	=	ALPHA / DIGIT / "-" / "." / "_" / "~"
+path-absolute	=	"/" [ segment-nz *( "/" segment ) ]
+					F         T          T     _
+segment-nz		=	1*pchar
+pchar			=	unreserved / pct-encoded / sub-delims / ":" / "@"
 
-pct-encoded	=	"%" HEXDIG HEXDIG
+segment			=	*pchar
 
-sub-delims	=	"!" / "$" / "&" / "'" / "(" / ")"
+unreserved		=	ALPHA / DIGIT / "-" / "." / "_" / "~"
+
+pct-encoded		=	"%" HEXDIG HEXDIG
+
+sub-delims		=	"!" / "$" / "&" / "'" / "(" / ")"
 				/ "*" / "+" / "," / ";" / "="
 
-IPv4address	=	dec-octet "." dec-octet "." dec-octet "." dec-octet
+IPv4address		=	dec-octet "." dec-octet "." dec-octet "." dec-octet
 
-IP-literal	=	"[" ( IPv6address / IPvFuture  ) "]"
+IP-literal		=	"[" ( IPv6address / IPvFuture  ) "]"
 
 IPv6address =	6( h16 ":" ) ls32
 				/                       "::" 5( h16 ":" ) ls32
@@ -45,4 +52,4 @@ IPv6address =	6( h16 ":" ) ls32
 				/ [ *5( h16 ":" ) h16 ] "::"              h16
 				/ [ *6( h16 ":" ) h16 ] "::"
 
-IPvFuture	=	"v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+IPvFuture		=	"v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
