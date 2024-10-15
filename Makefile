@@ -1,14 +1,12 @@
 NAME			:= ./webserv
-PORT			:= 3002
+PORT			:= 3000
 
 SOURCES			:= \
 					server.cpp \
 					EventPool.cpp \
 					MasterHandler.cpp \
 					ClientHandler.cpp \
-					ScriptHandler.cpp \
-					HttpRequest.cpp \
-					File.cpp
+					HttpRequest.cpp
 OBJECTS			:= $(SOURCES:.cpp=.o)
 SOURCES			:= $(addprefix sources/,$(SOURCES))
 OBJECTS			:= $(addprefix .build/,$(OBJECTS))
@@ -18,14 +16,12 @@ CXX				:= c++
 CXXFLAGS		:= -Wall -Wextra -Werror -std=c++98 -Iincludes -MMD -MP -g3
 DEFINES			:= -D PORT=$(PORT)
 
-LDFLAGS			:=
-
 all: $(NAME)
 
 -include $(DEPENDENCIES)
 
 $(NAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $^ -o $@
+	$(CXX) $^ -o $@
 
 .build/%.o: sources/%.cpp Makefile
 	@mkdir -p $(@D)

@@ -24,20 +24,6 @@ TRIVIA:
 - recv() ne bloque pas quand il n'y a pas le nombre attendus de bytes disponibles
 
 
-dans Client:
-[    xxx    ]
-     ^
-	 pos
-	 ===
-	 size
-
-
-- recv_buffer // pas censé contenir la requete
-- read_position
-- buffer_size
-
-std::string ClientHandler::read_line() throw(std::runtime_error)
-
 
 
 

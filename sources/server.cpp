@@ -11,7 +11,6 @@ try {
 	MasterHandler					master;
 	EventPool 						pool;
 	HandlerManager<ClientHandler>	clients;
-	HandlerManager<ScriptHandler>	scripts;
 	EventPool::Event				event;
 
 	// signal(SIGPIPE, SIG_IGN);
@@ -23,13 +22,10 @@ try {
 			switch (event.handler_type)
 			{
 				case MASTER_HANDLER:
-					((MasterHandler *)event.handler)->handle_event(event.flags, pool, clients);
+					reinterpret_cast<MasterHandler*>(event.handler)->handle_event(event.flags, pool, clients);
 					break;
 				case CLIENT_HANDLER:
-					((ClientHandler *)event.handler)->handle_event(event.flags, pool, scripts, clients);
-					break;
-				case SCRIPT_HANDLER:
-					((ScriptHandler *)event.handler)->handle_event(event.flags);
+					reinterpret_cast<ClientHandler*>(event.handler)->handle_event(event.flags, pool, clients);
 					break;
 			}
 		} catch (std::runtime_error error) {

@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 #include "HandlerManager.tpp"
-#include "ScriptHandler.hpp"
 #include "EventPool.hpp"
 #include <vector>
 #include "HttpRequest.hpp"
@@ -18,18 +17,15 @@ public:
 	void	handle_event(
 		int event_flags,
 		EventPool &pool,
-		HandlerManager<ScriptHandler> &scripts,
 		HandlerManager<ClientHandler> &clients_manager
 	) throw (std::runtime_error);
+	void	receive_request() throw (std::runtime_error);
+	void	send_response(HandlerManager<ClientHandler> &clients_manager) throw (std::runtime_error);
 
-	std::string	receive_line();
-	void receive() throw(std::runtime_error);
-	std::string parse_line(std::string &line);
 
 private:
 	int						fd;
-	std::string				request_buffer;
+	HttpRequest				request;
 	std::vector<uint8_t>	response_buffer;
 	std::size_t				response_pos;
-	HttpRequest				request;
 };

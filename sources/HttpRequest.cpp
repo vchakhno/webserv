@@ -87,7 +87,7 @@ bool	match_unreserved(const std::string &str, std::size_t &pos)
 
 void	parse_segment(const std::string &str, std::size_t &pos)
 {
-	while (str.size() != pos && (
+	while (pos != str.size() && (
 		match_unreserved(str, pos)
 		|| match_pct_encoded(str, pos)
 		|| match_sub_delims(str, pos)
@@ -154,27 +154,32 @@ void	HttpRequest::parse_request_body(std::string line) throw(std::runtime_error)
 	(void) line;
 }
 
-void HttpRequest::parse_line(std::string line) throw(std::runtime_error)
+void	HttpRequest::parse_request_chunk(char *recv_buffer, ssize_t recv_size) throw(std::runtime_error)
 {
+	size_t					previous_size;
+	std::string::size_type	newline_pos;
+	std::string				line;
+
 	switch (this->parsing_stage)
 	{
-		case REQUEST_LINE_PARSE_STAGE:
+		case PARSING_STAGE_REQUEST_LINE:
+			previous_size = this->request_buffer.size();
+			this->request_buffer.append(recv_buffer, recv_size);
+			newline_pos = this->request_buffer.find("\r\n", previous_size);
+			if (newline_pos == std::string::npos)
+				return;
+			line = this->request_buffer.substr(previous_size, newline_pos);
 			parse_request_line(line);
-			this->parsing_stage = HEADER_PARSE_STAGE;
+			this->parsing_stage = PARSING_STAGE_DONE;
 			break;
-		case HEADER_PARSE_STAGE:
-			if (line == "\r\n")
-				this->parsing_stage = BODY_PARSE_STAGE;
-			else
-				parse_request_header(line);
+		case PARSING_STAGE_HEADER:
 			break;
-		case BODY_PARSE_STAGE:
-			parse_request_body(line);
-			// Check Content-Length and go to done
+		case PARSING_STAGE_BODY:
+			break;
+		case PARSING_STAGE_DONE:
 			break;
 	}
 }
-
 
 std::ostream &operator<<(std::ostream &output, const HttpRequest &request) {
 	std::string	methods[] = {
@@ -186,11 +191,12 @@ std::ostream &operator<<(std::ostream &output, const HttpRequest &request) {
 
 	if (request.parsing_stage > PARSING_STAGE_REQUEST_LINE) {
 		output	<< "Method: " <<  methods[request.method] << "\n"
-				<< "Uri type:" <<  uri_types[request.uri_type] << "\n";
+				<< "Uri type: " <<  uri_types[request.uri_type] << "\n";
 	} else {
 		output	<< "Method: not parsed\n"
 				<< "Uri type: not parsed\n";
 	}
-	output << "Header: " << request.header << "\n";
+	output << "Header: " << request.headers << "\n";
 	output << "Body: " << request.body;
+	return output;
 }

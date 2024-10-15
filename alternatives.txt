@@ -18,6 +18,7 @@ Request parsing:
 x parse line by line
 - parse after receiving the whole header (string.find \r\n\r\n)
 
+Exiting the server with CTRL+C:
 - throw/catch
 	Pour chaque syscall qui peut être interrompu, on throw ServerStop.
 	Le sighandler est en mode pas redémarrer.
@@ -34,3 +35,6 @@ x parse line by line
 throw/catch car plus reactif et idiomatique (C++)
 pipe: pas assez reactif/idiomatique
 running: variable global
+
+^ On a pas pris en compte les CTRL+C hors syscall !
+Il faut forcément que le SIGHANDLER set une variable à true.
