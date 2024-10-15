@@ -54,7 +54,7 @@ Test(request_line, invalid_method) try {
 	// Create a function that only takes request, max_response_size and timeout.
 	// Automatically launches the server and everything.
 
-	// TODO:
+	// Note: In the future, replace this with a proper request
 	std::string	request = "GETTER /note.txt HTTP/1.1\r\n";
 	ssize_t		send_size;
 
