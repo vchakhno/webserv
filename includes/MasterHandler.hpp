@@ -11,6 +11,11 @@
 
 #define BACKLOG_SIZE 10
 
+// Wrapper for the master socket.
+//
+// Creates and binds the socket in the constructor.
+// Uses RAII to manage the fd.
+
 class MasterHandler {
 public:
 	MasterHandler() throw (std::runtime_error);

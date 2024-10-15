@@ -20,7 +20,9 @@ static struct epoll_event	serialize_handler(EventPool::Event event)
 	struct epoll_event serialized;
 
 	serialized.events = event.flags;
-	serialized.data.u64 = ((uintptr_t)event.handler & ~(0b11ull << 62)) | ((uintptr_t) event.handler_type << 62);
+	serialized.data.u64 = (
+		reinterpret_cast<uintptr_t>(event.handler) & ~(0b11ull << 62))
+		| (static_cast<uintptr_t>(event.handler_type) << 62);
 	return serialized;
 }
 
@@ -37,8 +39,8 @@ static EventPool::Event		deserialize_event(struct epoll_event serialized)
 {
 	EventPool::Event event = {
 		.flags = serialized.events,
-		.handler_type = serialized.data.u64 >> 62,
-		.handler = (void *)((serialized.data.u64 << 2) >> 2)
+		.handler_type = static_cast<int>(serialized.data.u64 >> 62),
+		.handler = reinterpret_cast<void *>((serialized.data.u64 << 2) >> 2)
 	};
 	return event;
 }
@@ -52,25 +54,3 @@ EventPool::Event	EventPool::get_event()
 	}
 	return deserialize_event(buffer[current++]);
 }
-
-
-// int
-// x
-// size_t
-// [4 octets]
-// string 
-
-// 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11110000
-//                                                         size_t  int --2
-
-// 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111
-//                                                         size_t ---- int 0
-
-
-// 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111
-//                                                       ---- int   size_t ------
-
-
-// 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111
-// XX
-// XXXXXXXX XXXXXXXX ________ ________ ________ ________ ________ _____000

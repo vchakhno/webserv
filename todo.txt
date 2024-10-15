@@ -11,3 +11,7 @@ todo:
 - DELETE, POST for files
 - consider checking event flag for master socket
 - add logger with levels
+
+- make EventPool less generic. Instead of observe, there should be addMaster, addClient, addScript.
+- add a muteClient to EventPool, that disables the reading flags
+- ajouter un flag pour le PORT (sinon les tests run en parallele sur le même port...)

@@ -45,7 +45,7 @@ void	ClientHandler::receive_request() throw (std::runtime_error) {
 		if (this->request.parsing_stage == PARSING_STAGE_DONE) {
 			std::cout << "Request complete:\n" << this->request << std::endl;
 
-			std::string response("Request complete\n");
+			std::string response("HTTP/1.1 200 OK\n");
 			this->response_buffer.insert(this->response_buffer.end(), response.begin(), response.end());
 		}
 	} else {
@@ -54,7 +54,7 @@ void	ClientHandler::receive_request() throw (std::runtime_error) {
 		if (this->request.parsing_stage != PARSING_STAGE_DONE) {
 			std::cout << "Incomplete request" << std::endl;
 
-			std::string response("Incomplete request\n");
+			std::string response("HTTP/1.1 400 Bad Request\n");
 			this->response_buffer.insert(this->response_buffer.end(), response.begin(), response.end());
 		}
 	}
@@ -66,7 +66,7 @@ void	ClientHandler::send_response(HandlerManager<ClientHandler> &clients_manager
 	// If everything has been sent already, return
 	if (response_pos == response_buffer.size())
 		return;
-	// Try to send everything present in the reponse buffer
+	// Try to send everything present in the response buffer
 	if ((send_size = send(fd, &response_buffer[response_pos], response_buffer.size() - response_pos, 0)) == -1)
 		throw std::runtime_error("Error sending to client socket");
 
@@ -88,7 +88,7 @@ void	ClientHandler::handle_event(
 try {
 	(void) pool;
 
-	print_event_flags(event_flags);
+	// print_event_flags(event_flags);
 	if (event_flags & EPOLLIN)
 		this->receive_request();
 	if (event_flags & EPOLLOUT)

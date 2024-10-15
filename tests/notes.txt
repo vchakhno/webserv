@@ -1,0 +1,23 @@
+Create dummy clients, and launch the real server
+
+what to test:
+1. the server accepts connections
+	- single client
+		- connect succeeds
+		-> it probably checks the protocol too?
+	- multiple clients
+
+2. the server accepts text
+	- single client
+		- send succeed
+	- multiple clients
+
+3. server answers simple GET requests, with shutdown WR
+	- client sends all at once
+		- client receives a response
+		- client checks syntax of response
+		- client checks content of response
+		-> different file types
+
+4. hanging?
+	- clients sends part of a valid request, then stops/crashes
