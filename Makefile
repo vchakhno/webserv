@@ -4,8 +4,9 @@ PORT			:= 3000
 SOURCES			:= \
 					server.cpp \
 					EventPool.cpp \
-					MasterHandler.cpp \
-					ClientHandler.cpp \
+					MasterConnection.cpp \
+					ClientConnection.cpp \
+					ClientManager.cpp \
 					HttpRequest.cpp
 OBJECTS			:= $(SOURCES:.cpp=.o)
 SOURCES			:= $(addprefix sources/,$(SOURCES))

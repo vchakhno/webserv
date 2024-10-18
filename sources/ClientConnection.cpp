@@ -1,4 +1,4 @@
-#include "ClientHandler.hpp"
+#include "ClientConnection.hpp"
 #include "HttpRequest.hpp"
 #include <iostream>
 #include <unistd.h>
@@ -60,7 +60,7 @@ void	ClientConnection::receive_request() throw (std::runtime_error) {
 	}
 }
 
-void	ClientConnection::send_response(HandlerManager<ClientConnection> &clients_manager) throw (std::runtime_error) {
+void	ClientConnection::send_response(ClientManager &clients_manager) throw (std::runtime_error) {
 	ssize_t	send_size;
 
 	// If everything has been sent already, return
@@ -80,11 +80,7 @@ void	ClientConnection::send_response(HandlerManager<ClientConnection> &clients_m
 	}
 }
 
-void	ClientConnection::handle_event(
-	int event_flags,
-	EventPool &pool,
-	HandlerManager<ClientConnection> &clients_manager
-) throw (std::runtime_error)
+void	ClientConnection::handle_event(int event_flags, EventPool &pool, ClientManager &clients_manager) throw (std::runtime_error)
 try {
 	(void) pool;
 

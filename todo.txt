@@ -1,7 +1,5 @@
 todo:
 - ajouter commentaire au code !!
-- rename *Handler -> *Connection
-- re-specialize HandlerManager in favor of HandlerManager<ClientHandler> (ClientConnections ?)
 - separate HttpRequest into multiple files HttpRequestLine/HttpRequestHeaders/HttpRequestBody
 - finir le parsing incomplet dans HttpRequest
 - check end of header (\r\n\r\n) and content-length for requests that don't end explicitely

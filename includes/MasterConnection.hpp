@@ -2,8 +2,8 @@
 
 #include <stdexcept>
 #include "EventPool.hpp"
-#include "ClientHandler.hpp"
-#include "HandlerManager.tpp"
+#include "ClientConnection.hpp"
+#include "ClientManager.hpp"
 
 #ifndef PORT
 	#define PORT 3000
@@ -23,7 +23,7 @@ public:
 
 	void	listen(EventPool &pool) throw(std::runtime_error);
 
-	void	handle_event(int event_flags, EventPool &pool, HandlerManager<ClientConnection> &clients) throw (std::runtime_error);
+	void	handle_event(int event_flags, EventPool &pool, ClientManager &clients) throw (std::runtime_error);
 private:
 	int	fd;
 };

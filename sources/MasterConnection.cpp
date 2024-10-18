@@ -1,4 +1,4 @@
-#include "MasterHandler.hpp"
+#include "MasterConnection.hpp"
 #include "HandlerType.hpp"
 #include <sys/socket.h>
 #include <string.h>
@@ -51,10 +51,10 @@ void	MasterConnection::listen(EventPool &pool) throw (std::runtime_error)
 }
 
 
-void	MasterConnection::handle_event(int event_flags, EventPool &pool, HandlerManager<ClientConnection> &clients) throw (std::runtime_error)
+void	MasterConnection::handle_event(int event_flags, EventPool &pool, ClientManager &clients) throw (std::runtime_error)
 {
 	int					client_fd;
-	ClientConnection		*client;
+	ClientConnection	*client;
 
 	(void) event_flags;
 	std::cout << "Incoming connection" << std::endl;

@@ -1,5 +1,5 @@
 #include "EventPool.hpp"
-#include "MasterHandler.hpp"
+#include "MasterConnection.hpp"
 #include <iostream>
 #include <exception>
 #include <vector>
@@ -17,10 +17,10 @@
 
 int	main(int argc __attribute__((unused)), char **argv)
 try {
-	MasterConnection					master;
-	EventPool 						pool;
-	HandlerManager<ClientConnection>	clients;
-	EventPool::Event				event;
+	MasterConnection	master;
+	EventPool 			pool;
+	ClientManager		clients;
+	EventPool::Event	event;
 
 	// signal(SIGPIPE, SIG_IGN);
 	master.listen(pool);
