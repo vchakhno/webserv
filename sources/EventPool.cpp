@@ -32,7 +32,7 @@ void	EventPool::observe(int event_fd, Event event, std::string event_name) throw
 
 	serialized = serialize_handler(event);
 	if (epoll_ctl(this->fd, EPOLL_CTL_ADD, event_fd, &serialized) == -1)
-		throw std::runtime_error(std::string("Error while registering ") + event_name + ": " + ": " + strerror(errno));
+		throw std::runtime_error(std::string("Error while registering ") + event_name + ": " + strerror(errno));
 }
 
 static EventPool::Event		deserialize_event(struct epoll_event serialized)

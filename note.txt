@@ -27,7 +27,15 @@ TRIVIA:
 
 
 
+ClientConnection(int master_fd, ClientManager &clients, EventPool &pool)
+{
+	fd = accept(master_fd);
+	pool.add_client(fd, *this);
+	clients.add_client(*this);
+}
 
-
-
-
+~ClientConnection() {
+	client.remove_client(*this)
+	// Also unregisters from epoll
+	close(fd);
+}
