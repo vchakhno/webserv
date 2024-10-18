@@ -1,7 +1,7 @@
 [ ] Request-Line
 	- [x] Method
 	- [ ] Request-URI
-		- [ ] "*"
+		- [ ] "*" # Velimir
 		- [ ] absoluteURI
 			- [ ] scheme	# Velimir
 			- [ ] authority # H

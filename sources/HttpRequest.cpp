@@ -206,11 +206,16 @@ void	HttpRequest::parse_request_uri(const std::string &line, std::size_t &pos) t
 	std::size_t	uri_start;
 
 	uri_start = pos;
-	if (!parse_abs_path(line, pos))
-		throw std::runtime_error("Request syntax error: Missing leading slash in path");
+	if (match_string(line, "*", pos))
+		this->uri_type = REQUEST_URI_WILDCARD;
+	else if (parse_abs_path(line, pos)) {
+		this->uri_type = REQUEST_URI_ABSOLUTE_PATH;
+		this->uri = line.substr(uri_start, pos - uri_start - 1);
+	}
+	else
+		throw std::runtime_error("Request syntax error: Invalid Request-URI");
 	if (!match_string(line, " ", pos))
 		throw std::runtime_error(REQUEST_URI_ILLEGAL_CHARACTER);
-	this->uri = line.substr(uri_start, pos - uri_start - 1);
 }
 
 void	HttpRequest::parse_request_line(std::string line) throw(std::runtime_error)

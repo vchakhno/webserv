@@ -25,7 +25,10 @@ enum HttpMethod : uint8_t {
 };
 
 enum RequestUriType : uint8_t {
-	REQUEST_URI_ABSOLUTE_PATH = 0
+	REQUEST_URI_WILDCARD = 0,
+	REQUEST_URI_ABSOLUTE_URI = 1,
+	REQUEST_URI_ABSOLUTE_PATH = 2,
+	REQUEST_URI_AUTHORITY = 3,
 };
 
 // struct HttpRequestLine {
