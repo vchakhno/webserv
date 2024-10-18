@@ -14,15 +14,30 @@
 
 "122.222.111.22:3343:AJ@RFEE:111:1:1:115:5678"
 
+absolute-URI	= scheme ":" hier-part [ "?" query ]
+
+hier-part		=	"//" authority path-abempty
+				 / path-absolute
+				 / path-rootless
+				 / path-empty
+
+path-empty		=	0<pchar>
+
+path-rootless	=	segment-nz *( "/" segment )
+
+path-abempty	=	*( "/" segment )
+
+path-absolute	=	"/" [ segment-nz *( "/" segment ) ]
+
 authority		=	[ userinfo "@" ] host [ ":" port ]
 
-userinfo		=	*( unreserved / pct-encoded / sub-delims / ":" )
+userinfo		=	*( unreserved / pct-encoded / sub-delims / ":" ) (done)
 
-host			=	IP-literal / IPv4address / reg-name
+host			=	IP-literal / IPv4address / reg-name (done)
 
-port			=	*DIGIT
+port			=	*DIGIT (done)
 
-reg-name		=	*( unreserved / pct-encoded / sub-delims )
+reg-name		=	*( unreserved / pct-encoded / sub-delims ) (done)
 
 path-absolute	=	"/" [ segment-nz *( "/" segment ) ]
 					F         T          T     _

@@ -85,6 +85,30 @@ bool	match_unreserved(const std::string &str, std::size_t &pos)
 	return true;
 }
 
+bool	parse_reg_name(const std::string &str, std::size_t &pos)
+{
+	while (pos != str.size() && (
+		match_unreserved(str, pos)
+		|| match_pct_encoded(str, pos)
+		|| match_sub_delims(str, pos)
+		|| match_string(str, ":", pos)
+	))
+		;
+	return true;
+}
+
+bool	parse_userinfo(const std::string &str, std::size_t &pos)
+{
+	while (pos != str.size() && (
+		match_unreserved(str, pos)
+		|| match_pct_encoded(str, pos)
+		|| match_sub_delims(str, pos)
+		|| match_string(str, ":", pos)
+	))
+		;
+	return true;
+}
+
 void	parse_segment(const std::string &str, std::size_t &pos)
 {
 	while (pos != str.size() && (
@@ -102,11 +126,65 @@ bool	parse_segment_nz(const std::string &str, std::size_t &pos)
 	return tmp != pos;
 }
 
+bool	parse_ip_literal(const std::string &str, std::size_t &pos)
+{
+	(void)pos;
+	(void)str;
+	return true;
+}
+
+bool	parse_ipv4_address(const std::string &str, std::size_t &pos)
+{
+	(void)pos;
+	(void)str;
+	return true;
+}
+
+bool	parse_host(const std::string &str, std::size_t &pos)
+{
+	if (parse_ip_literal(str, pos)
+		|| parse_ipv4_address(str, pos)
+		|| parse_reg_name(str, pos))
+		return true;
+	return false;
+}
+
+bool	parse_port(const std::string &str, std::size_t &pos)
+{
+	std::size_t	start_pos;
+
+	start_pos = pos;
+	while (match_string(str, "0123456789", pos))
+		;
+	if (start_pos == pos)
+		return false;
+	return true;
+}
+
+bool	parse_authority(const std::string &str, std::size_t &pos)
+{
+	// [ userinfo "@" ] host [ ":" port ]
+
+	if (parse_userinfo(str, pos))
+	{
+		if (match_string(str, "@", pos))
+			;
+	}
+	if (!parse_host(str, pos))
+		return false;
+	if (match_string(str, ":", pos))
+	{
+		if (parse_port(str, pos))
+			;
+	}
+	return true;
+}
+
 bool	parse_abs_path(const std::string &str, std::size_t &pos)
 {
 	if (!match_string(str, "/", pos))
 		return false;
-	
+
 
 	if (parse_segment_nz(str, pos))
 		while (match_string(str, "/", pos))
@@ -120,6 +198,8 @@ void	parse_http_version(const std::string &str, std::size_t &pos)
 	if (match_string(str, "HTTP/1.1\r\n", pos))
 		throw std::runtime_error("Bad path");
 }
+
+
 
 void	HttpRequest::parse_request_uri(const std::string &line, std::size_t &pos) throw(std::runtime_error)
 {
