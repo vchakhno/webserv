@@ -14,7 +14,9 @@
 
 "122.222.111.22:3343:AJ@RFEE:111:1:1:115:5678"
 
-absolute-URI	= scheme ":" hier-part [ "?" query ]
+absolute-URI	=	scheme ":" hier-part [ "?" query ]
+
+scheme			=	ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 
 hier-part		=	"//" authority path-abempty
 				 / path-absolute
