@@ -8,9 +8,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-ClientHandler::ClientHandler(int fd) : fd(fd), response_pos() {}
+ClientConnection::ClientConnection(int fd) : fd(fd), response_pos() {}
 
-ClientHandler::~ClientHandler()
+ClientConnection::~ClientConnection()
 {
 	close(fd);
 }
@@ -30,7 +30,7 @@ void	print_event_flags(int event_flags)
 	std::cout << std::endl;
 }
 
-void	ClientHandler::receive_request() throw (std::runtime_error) {
+void	ClientConnection::receive_request() throw (std::runtime_error) {
 	char	recv_buffer[RECV_SIZE];
 	ssize_t	recv_size;
 
@@ -60,7 +60,7 @@ void	ClientHandler::receive_request() throw (std::runtime_error) {
 	}
 }
 
-void	ClientHandler::send_response(HandlerManager<ClientHandler> &clients_manager) throw (std::runtime_error) {
+void	ClientConnection::send_response(HandlerManager<ClientConnection> &clients_manager) throw (std::runtime_error) {
 	ssize_t	send_size;
 
 	// If everything has been sent already, return
@@ -80,10 +80,10 @@ void	ClientHandler::send_response(HandlerManager<ClientHandler> &clients_manager
 	}
 }
 
-void	ClientHandler::handle_event(
+void	ClientConnection::handle_event(
 	int event_flags,
 	EventPool &pool,
-	HandlerManager<ClientHandler> &clients_manager
+	HandlerManager<ClientConnection> &clients_manager
 ) throw (std::runtime_error)
 try {
 	(void) pool;

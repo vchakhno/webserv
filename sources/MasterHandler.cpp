@@ -8,7 +8,7 @@
 #include <cerrno>
 #include <string>
 
-MasterHandler::MasterHandler() throw (std::runtime_error)
+MasterConnection::MasterConnection() throw (std::runtime_error)
 {
 	struct protoent		*protocol_entry;
 	int					protocol;
@@ -32,12 +32,12 @@ MasterHandler::MasterHandler() throw (std::runtime_error)
 	}
 }
 
-MasterHandler::~MasterHandler()
+MasterConnection::~MasterConnection()
 {
 	close(fd);
 }
 
-void	MasterHandler::listen(EventPool &pool) throw (std::runtime_error)
+void	MasterConnection::listen(EventPool &pool) throw (std::runtime_error)
 {
 	EventPool::Event master_event = {
 		.flags = EPOLLIN,
@@ -51,10 +51,10 @@ void	MasterHandler::listen(EventPool &pool) throw (std::runtime_error)
 }
 
 
-void	MasterHandler::handle_event(int event_flags, EventPool &pool, HandlerManager<ClientHandler> &clients) throw (std::runtime_error)
+void	MasterConnection::handle_event(int event_flags, EventPool &pool, HandlerManager<ClientConnection> &clients) throw (std::runtime_error)
 {
 	int					client_fd;
-	ClientHandler		*client;
+	ClientConnection		*client;
 
 	(void) event_flags;
 	std::cout << "Incoming connection" << std::endl;
@@ -65,7 +65,7 @@ void	MasterHandler::handle_event(int event_flags, EventPool &pool, HandlerManage
 	}
 
 	try {
-		client = new ClientHandler(client_fd);
+		client = new ClientConnection(client_fd);
 		clients.add_handler(client);
 	} catch (std::bad_alloc) {
 		throw std::runtime_error("Error allocating memory for the client handler");

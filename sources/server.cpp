@@ -17,9 +17,9 @@
 
 int	main(int argc __attribute__((unused)), char **argv)
 try {
-	MasterHandler					master;
+	MasterConnection					master;
 	EventPool 						pool;
-	HandlerManager<ClientHandler>	clients;
+	HandlerManager<ClientConnection>	clients;
 	EventPool::Event				event;
 
 	// signal(SIGPIPE, SIG_IGN);
@@ -32,10 +32,10 @@ try {
 			switch (event.handler_type)
 			{
 				case MASTER_HANDLER:
-					reinterpret_cast<MasterHandler*>(event.handler)->handle_event(event.flags, pool, clients);
+					reinterpret_cast<MasterConnection*>(event.handler)->handle_event(event.flags, pool, clients);
 					break;
 				case CLIENT_HANDLER:
-					reinterpret_cast<ClientHandler*>(event.handler)->handle_event(event.flags, pool, clients);
+					reinterpret_cast<ClientConnection*>(event.handler)->handle_event(event.flags, pool, clients);
 					break;
 			}
 		// This catch handles any IO, parsing, or allocation error concerning a specific connection.
