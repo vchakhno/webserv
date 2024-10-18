@@ -18,6 +18,19 @@ bool	match_string(
 	return true;
 }
 
+bool	match_charset(
+	const std::string &string,
+	const char *charset,
+	std::size_t &pos
+) {
+	static const std::string set(charset);
+
+	if (set.find(string[pos]) == std::string::npos)
+		return false;
+	pos++;
+	return true;
+}
+
 // GET	/etc/test HTTP1.1
 
 void	parse_http_method(
@@ -66,23 +79,17 @@ bool	match_pct_encoded(const std::string &str, std::size_t &pos)
 
 bool	match_sub_delims(const std::string &str, std::size_t &pos)
 {
-	static const std::string set("!$&'()*+,;=");
-
-	if (set.find(str[pos]) == std::string::npos)
-		return false;
-	pos++;
-	return true;
+	return match_charset(str, "!$&'()*+,;=", pos);
 }
 
 bool	match_unreserved(const std::string &str, std::size_t &pos)
 {
-	static const std::string set("-._~");
-
-	if (!isalnum(str[pos])
-		&& set.find(str[pos]) == std::string::npos)
-		return false;
-	pos++;
-	return true;
+	if (isalnum(str[pos]))
+	{
+		pos++;
+		return true;
+	}
+	return match_charset(str, "-._~", pos);
 }
 
 bool	parse_reg_name(const std::string &str, std::size_t &pos)
@@ -91,7 +98,6 @@ bool	parse_reg_name(const std::string &str, std::size_t &pos)
 		match_unreserved(str, pos)
 		|| match_pct_encoded(str, pos)
 		|| match_sub_delims(str, pos)
-		|| match_string(str, ":", pos)
 	))
 		;
 	return true;
@@ -151,14 +157,10 @@ bool	parse_host(const std::string &str, std::size_t &pos)
 
 bool	parse_port(const std::string &str, std::size_t &pos)
 {
-	std::size_t	start_pos;
-
-	start_pos = pos;
-	while (match_string(str, "0123456789", pos))
+	std::size_t	start_pos = pos;
+	while (match_charset(str, "0123456789", pos))
 		;
-	if (start_pos == pos)
-		return false;
-	return true;
+	return start_pos != pos;
 }
 
 bool	parse_authority(const std::string &str, std::size_t &pos)

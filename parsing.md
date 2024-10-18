@@ -27,8 +27,6 @@ path-rootless	=	segment-nz *( "/" segment )
 
 path-abempty	=	*( "/" segment )
 
-path-absolute	=	"/" [ segment-nz *( "/" segment ) ]
-
 authority		=	[ userinfo "@" ] host [ ":" port ]
 
 userinfo		=	*( unreserved / pct-encoded / sub-delims / ":" ) (done)
@@ -40,7 +38,7 @@ port			=	*DIGIT (done)
 reg-name		=	*( unreserved / pct-encoded / sub-delims ) (done)
 
 path-absolute	=	"/" [ segment-nz *( "/" segment ) ]
-					F         T          T     _
+
 segment-nz		=	1*pchar
 pchar			=	unreserved / pct-encoded / sub-delims / ":" / "@"
 
@@ -68,3 +66,5 @@ IPv6address =	6( h16 ":" ) ls32
 				/ [ *6( h16 ":" ) h16 ] "::"
 
 IPvFuture		=	"v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+
+::
